@@ -1,0 +1,178 @@
+# 🫀 Task 3 — Heart Disease Prediction
+**DevelopersHub Corporation — AI/ML Engineering Internship**
+
+![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)
+![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)
+![Sklearn](https://img.shields.io/badge/Scikit--Learn-ML-yellowgreen?logo=scikit-learn)
+![Dataset](https://img.shields.io/badge/Dataset-UCI%20Heart%20Disease-red)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
+
+---
+
+##  Objective
+Build a **binary classification model** to predict whether a patient is at risk of heart disease based on clinical health indicators.
+
+The model takes 13 patient features (age, blood pressure, cholesterol, etc.) as input and outputs:
+- `1` → Patient likely has Heart Disease
+- `0` → Patient likely does NOT have Heart Disease
+
+---
+
+##  Dataset
+
+| Property | Detail |
+|:---|:---|
+| **Name** | UCI Heart Disease Dataset |
+| **File** | `heart.csv` ← included in this folder |
+| **Source** | [Kaggle — Heart Disease UCI](https://www.kaggle.com/datasets/ronitf/heart-disease-uci) |
+| **Total Patients** | 303 |
+| **Features** | 13 clinical features |
+| **Target** | Binary — `1` = Disease, `0` = No Disease |
+| **Class Balance** | ~52% positive — well balanced ✅ |
+| **Missing Values** | None (or filled with column median) |
+
+### Feature Description
+
+| Feature | Description | Type |
+|:---|:---|:---:|
+| `age` | Patient age in years | Numeric |
+| `sex` | Sex — 1 = Male, 0 = Female | Binary |
+| `cp` | Chest pain type (1=Typical, 2=Atypical, 3=Non-anginal, 4=Asymptomatic) | Categorical |
+| `trestbps` | Resting blood pressure (mmHg) | Numeric |
+| `chol` | Serum cholesterol (mg/dl) | Numeric |
+| `fbs` | Fasting blood sugar > 120 mg/dl — 1=True, 0=False | Binary |
+| `restecg` | Resting ECG results (0, 1, 2) | Categorical |
+| `thalach` | Maximum heart rate achieved (bpm) | Numeric |
+| `exang` | Exercise induced angina — 1=Yes, 0=No | Binary |
+| `oldpeak` | ST depression induced by exercise | Numeric |
+| `slope` | Slope of peak exercise ST segment (1, 2, 3) | Categorical |
+| `ca` | Number of major vessels blocked (0–3) | Numeric |
+| `thal` | Thalassemia type (3=Normal, 6=Fixed, 7=Reversible) | Categorical |
+| `target` | **Heart Disease — 1=Yes, 0=No** ← Predict this | Binary |
+
+---
+
+## 🔍 EDA Performed
+
+| Step | Visualization | Purpose |
+|:---:|:---|:---|
+| 1 | Pie Chart + Count Plot | Target class distribution |
+| 2 | Histograms | Age & max heart rate by disease status |
+| 3 | Bar Charts | Chest pain type & sex breakdown |
+| 4 | Box Plots | Age, cholesterol, heart rate, ST depression |
+| 5 | Correlation Heatmap | Inter-feature linear relationships |
+
+---
+
+## 🤖 Models Applied
+
+### 1. Logistic Regression
+- Linear classifier — outputs probability of disease
+- Most **interpretable** model — preferred in medical/clinical settings
+- `max_iter=1000`, `random_state=42`
+
+### 2. Decision Tree Classifier
+- Rule-based classifier — easy to visualize
+- Example rule: *IF cp==4 AND thalach < 140 → Heart Disease = YES*
+- `max_depth=5`, `random_state=42`
+
+### 3. Random Forest Classifier ⭐ Best
+- Ensemble of **200 decision trees** — majority vote = final prediction
+- Highest accuracy and AUC score
+- `n_estimators=200`, `random_state=42`
+
+### Train / Test Split
+```
+Total patients  →  303
+Train set       →  80%  (242 patients) — stratified
+Test set        →  20%  (61 patients)  — stratified
+Scaling         →  StandardScaler applied to all features
+Cross-Val       →  5-Fold CV on training set
+```
+
+---
+
+## 📊 Key Results & Findings
+
+### Model Performance Summary
+
+| Metric | Logistic Regression | Decision Tree | Random Forest |
+|:---|:---:|:---:|:---:|
+| **Test Accuracy** | ~85% | ~79% | ~88% |
+| **ROC-AUC Score** | ~0.91 | ~0.84 | ~0.94 |
+| **CV Accuracy (5-fold)** | ~84% | ~78% | ~87% |
+
+> **ROC-AUC** = 1.0 is perfect · Above 0.90 is excellent for medical classification
+
+### Feature Importance (Random Forest)
+
+| Rank | Feature | Clinical Meaning |
+|:---:|:---|:---|
+| 🥇 1 | `cp` — Chest Pain Type | Asymptomatic chest pain = highest risk |
+| 🥈 2 | `thalach` — Max Heart Rate | Lower max HR = higher disease risk |
+| 🥉 3 | `oldpeak` — ST Depression | Higher values = worse cardiac outcome |
+| 4 | `ca` — Blocked Vessels | More blockages = more disease risk |
+| 5 | `thal` — Thalassemia Type | Abnormal type is key clinical indicator |
+
+### Key Observations
+
+- ✅ **Random Forest** achieved the best overall performance (Accuracy ~88%, AUC ~0.94)
+- 📌 **Chest pain type** is the single most predictive feature — counterintuitively, **asymptomatic** pain (type 4) is most dangerous
+- 📌 **Age alone is NOT the strongest predictor** — clinical indicators carry more weight
+- 📌 **Lower maximum heart rate** significantly increases disease risk
+- 📌 Dataset is well-balanced — no class imbalance correction needed
+- 🏥 **Logistic Regression** recommended for clinical settings — most interpretable to doctors
+- ⚠️ False Negatives (missed disease cases) are more dangerous than False Positives in medical context
+
+---
+
+## 🛠️ Libraries Used
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score
+```
+
+---
+
+## 🚀 How to Run
+
+```bash
+# 1. Install dependencies
+pip install pandas numpy matplotlib seaborn scikit-learn jupyter
+
+# 2. Launch Jupyter
+jupyter notebook
+
+# 3. Make sure both files are in the SAME folder:
+#    📁 Task3/
+#        ├── heart.csv                          ← dataset
+#        └── Task3_Heart_Disease_Prediction.ipynb
+
+# 4. Open notebook and Run All Cells
+```
+
+> ⚠️ **Important:** `heart.csv` must be in the same folder as the notebook before running.
+
+---
+
+## 📁 Files
+
+| File | Description |
+|:---|:---|
+| `Task3_Heart_Disease_Prediction.ipynb` | Main Jupyter Notebook |
+| `heart.csv` | Dataset file — 303 patient records |
+| `README.md` | This file |
+
+---
+
+> ⚠️ **Disclaimer:** This model is built for **educational purposes only**. It must **not** be used for actual medical diagnosis or clinical decision-making. Always consult a qualified healthcare professional for medical concerns.
